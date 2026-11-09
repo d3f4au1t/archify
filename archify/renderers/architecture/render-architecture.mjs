@@ -134,7 +134,8 @@ function boundaryRect(boundary) {
     x: minX - pad,
     y: minY - topPad,
     width: maxX - minX + pad * 2,
-    height: maxY - minY + topPad + layout.boundaryExtraBottom,
+    // Explicit padding keeps nested ownership frames distinct on every side.
+    height: maxY - minY + topPad + (boundary.pad ?? layout.boundaryExtraBottom),
     memberTop: minY,
   };
 }

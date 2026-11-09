@@ -15,6 +15,8 @@ Run commands from your working directory. Unless the user names another location
 
 For a native diagram of a real codebase, read [Repository authoring](references/repository-authoring.md) while tracing the requested behavior. A system description uses the native steps below; a frozen candidate uses the handoff path.
 
+For repository Architecture, default to a [continuous code explorer](references/code-explorers.md): one fixed canvas with nested folders, files and source-linked methods, progressive detail, and pointer-anchored zoom. Inventory the complete requested scope before drawing. Read that reference for source indexing, guided runtime flows and explorer-specific verification; native diagram gates apply to separately authored native diagrams. Use a single level when explicitly requested; deployment diagrams and non-code subjects keep their normal abstraction.
+
 ## Choose the artifact
 
 - When the user asks to draw or visualize a system, flow, schema or history, use a native diagram and the Type router.
@@ -59,7 +61,7 @@ Before the first candidate, use the authoring references and relevant repository
 
 | Type | Use for | Schema | Example |
 |---|---|---|---|
-| `architecture` | Components, services, cloud/security boundaries, infrastructure; what something everyday is made of | `schemas/architecture.schema.json` | System descriptions, services, libraries, and CLI repos: `examples/web-app.architecture.json`; deployment repos: `examples/production-deployment.architecture.json` |
+| `architecture` | Repository methods and code ownership; components, services, infrastructure; what something everyday is made of | `schemas/architecture.schema.json` | Repository code: `examples/code-ownership.architecture.json`; system descriptions: `examples/web-app.architecture.json`; deployment repos: `examples/production-deployment.architecture.json` |
 | `workflow` | Processes, approval gates, tool calls, runbooks, CI/CD; plans and step-by-step life processes | `schemas/workflow.schema.json` | `examples/agent-tool-call.workflow.json` |
 | `sequence` | API call chains, request lifecycles, async traces, returns; back-and-forth between people | `schemas/sequence.schema.json` | `examples/cache-miss-request.sequence.json` |
 | `dataflow` | Pipelines, ETL/ELT, lineage, governance, consumers; where money or documents go | `schemas/dataflow.schema.json` | `examples/product-analytics.dataflow.json` |

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Illustrative order call path",
+    "locale": "en",
+    "output": "code-ownership.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {"id": "handle", "type": "backend", "label": "handle()", "sublabel": "Accept an order request", "pos": [100, 110], "size": [180, 64]},
+    {"id": "respond", "type": "backend", "label": "respond()", "sublabel": "Return the stored order", "pos": [100, 290], "size": [180, 64]},
+    {"id": "validate", "type": "backend", "label": "validate()", "sublabel": "Check required fields", "pos": [490, 110], "size": [180, 64]},
+    {"id": "save", "type": "backend", "label": "save()", "sublabel": "Persist a valid order", "pos": [490, 290], "size": [180, 64]}
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "Folder: src/orders/", "wraps": ["handle", "respond", "validate", "save"], "pad": 48},
+    {"kind": "region", "label": "File: handler.ts", "wraps": ["handle", "respond"], "pad": 20},
+    {"kind": "region", "label": "File: service.ts", "wraps": ["validate", "save"], "pad": 20}
+  ],
+  "connections": [
+    {"id": "validate-request", "from": "handle", "to": "validate", "label": "calls"},
+    {"id": "save-valid", "from": "validate", "to": "save", "label": "if valid"},
+    {"id": "return-order", "from": "save", "to": "respond", "label": "stored order"}
+  ],
+  "cards": [{"dot": "slate", "title": "Illustrative structure", "items": ["Invented symbols demonstrate file and folder containment. Real repository maps require pinned sources on every method.", "The stored-order edge denotes returned data, not a direct save() to respond() call."]}]
+}

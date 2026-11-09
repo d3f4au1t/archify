@@ -5,6 +5,8 @@ the authority for responsibilities, calls, boundaries, and persistence. The
 diagram is complete when the requested meaning is covered and every asserted
 fact has supporting source evidence.
 
+For Architecture, use [Code explorers](code-explorers.md) for the overview/file/method levels and [Code ownership maps](code-ownership-maps.md) for their nested outlines. The ownership hierarchy and call graph answer different questions; retain both.
+
 ## Explore on demand
 
 1. **Freeze identity.** From the target repository, record `git rev-parse
@@ -41,7 +43,7 @@ fact has supporting source evidence.
    direct I/O. Keep these facts with the source locations while reading, without
    a separate planning artifact. Choose which distinctions need separate
    nodes using [Composition and meaning](authoring-defaults.md#composition-and-meaning);
-   discovering an implementation role does not automatically add it to the overview.
+   retain the methods needed to explain execution and put their ownership in enclosing outlines.
    A configured provider, an injected adapter, a local stub, and a durable
    service are different claims; label the one the source supports.
 

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Code explorer</title>
+<style>
+:root{color-scheme:light dark;--surface:#f5f7fa;--ink:#172133;--line:#c8d1df;--accent:#006f86}
+@media(prefers-color-scheme:dark){:root{--surface:#0c1423;--ink:#e6edf7;--line:#44506a;--accent:#70dce9}}
+:root[data-theme=light]{--surface:#f5f7fa;--ink:#172133;--line:#c8d1df;--accent:#006f86}:root[data-theme=dark]{--surface:#0c1423;--ink:#e6edf7;--line:#44506a;--accent:#70dce9}
+*{box-sizing:border-box}body{margin:0;height:100dvh;display:flex;flex-direction:column;background:var(--surface);color:var(--ink);font:14px/1.45 system-ui,sans-serif}
+header{padding:12px 20px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px}h1{font-size:18px;margin:0;font-weight:650}nav{display:flex;gap:4px}button,select{font:inherit;min-height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 12px;cursor:pointer}button[aria-pressed=true]{background:var(--ink);color:var(--surface);border-color:var(--ink)}button:hover,select:hover{border-color:var(--accent)}button:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:3px}label{display:flex;align-items:center;gap:8px}select{max-width:300px}#context{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px 20px;font-size:12px}#trail{font-weight:650}#hint{color:var(--accent)}#coverage{flex-basis:100%}main{flex:1;min-height:0;position:relative}iframe{width:100%;height:100%;border:0;background:var(--surface)}#status{margin:0;min-height:24px;padding:2px 20px;font-size:12px;border-top:1px solid var(--line)}@media(max-width:640px){header{padding:10px 12px;gap:8px}h1{width:100%;font-size:16px}nav{width:100%}nav button{flex:1}label{width:100%}select{flex:1;min-width:0;max-width:none}#context{gap:4px}#status{padding-inline:12px}}
+</style>
+</head>
+<body>
+<header>
+ <h1 id="title"></h1>
+ <nav aria-label="Diagram scale"><button data-level="0" aria-pressed="true">Project</button><button data-level="1" aria-pressed="false">Files</button><button data-level="2" aria-pressed="false">Methods</button></nav>
+ <label>Area <select id="area"></select></label>
+ <div id="context"><span id="trail"></span><span id="hint">Scroll up for detail; down for context; sideways to pan. Alt + ↑ / ↓ also changes scale.</span><span id="coverage"></span></div>
+</header>
+<main><iframe id="viewer" title="Project architecture" allow="clipboard-write; fullscreen"></iframe></main>
+<p id="status" role="status" aria-live="polite"></p>
+<script id="explorer-data" type="application/json">__ARCHIFY_EXPLORER_DATA__</script>
+<script>
+(() => {
+ 'use strict';
+ const data = JSON.parse(document.getElementById('explorer-data').textContent);
+ const frame = document.getElementById('viewer');
+ const picker = document.getElementById('area');
+ const status = document.getElementById('status');
+ const levels = ['Project','Files','Methods'];
+ let area = data.areas[0], level = 0, file = '', reader = '', wheelTotal = 0, lastWheel = 0, lockedUntil = 0;
+ let theme = new URLSearchParams(location.search).get('theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+ document.documentElement.dataset.theme = theme;
+ document.title = data.title;
+ document.getElementById('title').textContent = data.title;
+ document.getElementById('coverage').textContent = data.coverage;
+ for (const entry of data.areas) { const option = new Option(entry.label, entry.id); picker.add(option); }
+ const decode = encoded => new TextDecoder().decode(Uint8Array.from(atob(encoded), c => c.charCodeAt(0)));
+ const nodeId = target => target instanceof frame.contentWindow.Element ? target.closest('[data-node-id]')?.getAttribute('data-node-id') : null;
+ function rememberNode(id) {
+  if (!id) return true;
+  if (level === 0) {
+   const owner = data.areas.find(entry => entry.overviewNodes.includes(id));
+   if (!owner) { status.textContent = 'This component has overview coverage only. Choose a detailed area from the menu.'; return false; }
+   area = owner; file = '';
+  } else if (level === 1 && area.filesToMethods[id]) file = id;
+  else if (level === 2) file = Object.keys(area.filesToMethods).find(key => area.filesToMethods[key].includes(id)) || file;
+  picker.value = area.id;
+  document.getElementById('trail').textContent = level === 0 ? 'Project overview' : area.label+' / '+levels[level]+(file ? ' / '+(area.fileLabels[file] || file) : '');
+  reader = 'focus='+encodeURIComponent(id);
+  address(); readingTemplate();
+  return true;
+ }
+ function readingTemplate() {
+  const template = new URL(location.href); template.hash = '';
+  const params = new URLSearchParams({area:area.id,level:String(level)});
+  if (file) params.set('file',file);
+  frame.contentDocument?.documentElement.setAttribute('data-reading-link-template',template.href+'#'+params+'&reader={state}');
+ }
+ function address() {
+  const params = new URLSearchParams({area:area.id,level:String(level)});
+  if (file) params.set('file',file);
+  if (reader) params.set('reader',reader);
+  // Embedded file previews may forbid history changes; navigation must still render.
+  try { history.replaceState(null,'','#'+params); }
+  catch (error) { if (error.name !== 'SecurityError') throw error; }
+ }
+ function scale(next) {
+  next = Math.max(0,Math.min(2,next));
+  if (next === level) return;
+  const previous = level; level = next;
+  reader = '';
+  if (previous === 0 && level > 0) status.textContent = area.label + ': '+levels[level].toLowerCase()+' detail.';
+  render();
+ }
+ function onWheel(event) {
+  const target = event.target;
+  if (!target.closest?.('.diagram-container') || target.closest('button,input,select,textarea,a,[role=dialog]')) return;
+  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+  if (!rememberNode(nodeId(target))) { event.preventDefault(); event.stopImmediatePropagation(); return; }
+  event.preventDefault(); event.stopImmediatePropagation();
+  const now = performance.now();
+  if (now < lockedUntil) return;
+  const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 500 : 1);
+  if (now-lastWheel > 220 || Math.sign(wheelTotal) !== Math.sign(delta)) wheelTotal = 0;
+  lastWheel = now; wheelTotal += delta;
+  if (Math.abs(wheelTotal) >= 80) {
+   const direction = wheelTotal < 0 ? 1 : -1;
+   wheelTotal = 0; lockedUntil = now+450;
+   const percent = parseFloat(frame.contentDocument.querySelector('[data-view-percent]')?.textContent || '100');
+   if (level === 2 && (direction > 0 || percent > 101)) frame.contentDocument.querySelector('[data-view="'+(direction>0?'in':'out')+'"]').click();
+   else scale(level+direction);
+  }
+ }
+ function onKey(event) {
+  if (event.key === 'Enter' || event.key === ' ') rememberNode(nodeId(event.target));
+  if (!event.altKey || !['ArrowUp','ArrowDown'].includes(event.key)) return;
+  event.preventDefault(); event.stopImmediatePropagation();
+  scale(level + (event.key === 'ArrowUp' ? 1 : -1));
+ }
+ function render() {
+  picker.value = area.id;
+  document.body.dataset.level = String(level);
+  document.body.dataset.area = area.id;
+  document.getElementById('trail').textContent = level === 0 ? 'Project overview' : area.label+' / '+levels[level]+(file ? ' / '+(area.fileLabels[file] || file) : '');
+  for (const button of document.querySelectorAll('[data-level]')) button.setAttribute('aria-pressed',String(Number(button.dataset.level)===level));
+  frame.title = level === 0 ? 'Project architecture' : area.label+' '+levels[level].toLowerCase();
+  const current = level === 0 ? data.project : level === 1 ? area.files : area.methods;
+  address();
+  frame.setAttribute('aria-busy','true');
+  frame.onload = () => {
+   const doc = frame.contentDocument, win = frame.contentWindow;
+   doc.documentElement.dataset.theme = theme;
+   new MutationObserver(()=>{theme=doc.documentElement.dataset.theme;document.documentElement.dataset.theme=theme;}).observe(doc.documentElement,{attributes:true,attributeFilter:['data-theme']});
+   readingTemplate();
+   win.addEventListener('wheel',onWheel,{capture:true,passive:false});
+   win.addEventListener('keydown',onKey,true);
+   doc.addEventListener('click',event => {
+    rememberNode(nodeId(event.target));
+    const control = event.target.closest?.('[data-view]');
+    if (control?.dataset.view === 'in' && level < 2) {event.preventDefault();event.stopImmediatePropagation();scale(level+1);}
+    const percent = parseFloat(doc.querySelector('[data-view-percent]')?.textContent || '100');
+    if (control?.dataset.view === 'out' && level > 0 && (level < 2 || percent <= 101)) {event.preventDefault();event.stopImmediatePropagation();scale(level-1);}
+   },true);
+   win.addEventListener('hashchange',() => {reader=win.location.hash.slice(1);address();});
+   if (reader) win.location.hash = reader;
+   frame.setAttribute('aria-busy','false');
+   status.textContent = levels[level]+' scale ready. '+(level < 2 ? 'Scroll up to explore the next level.' : 'Scroll down to return to file relationships.');
+  };
+  frame.srcdoc = decode(current.html);
+ }
+ function restore() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  area = data.areas.find(entry => entry.id === params.get('area')) || data.areas[0];
+  level = ['0','1','2'].includes(params.get('level')) ? Number(params.get('level')) : 0;
+  file = Object.hasOwn(area.filesToMethods,params.get('file')) ? params.get('file') : '';
+  reader = params.get('reader') || '';
+  render();
+ }
+ picker.addEventListener('change',() => {area=data.areas.find(entry=>entry.id===picker.value);file='';reader='';render();});
+ for (const button of document.querySelectorAll('[data-level]')) button.addEventListener('click',()=>scale(Number(button.dataset.level)));
+ document.addEventListener('keydown',onKey);
+ window.addEventListener('popstate',restore);
+ restore();
+})();
+</script>
+</body>
+</html>
