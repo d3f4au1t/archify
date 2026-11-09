@@ -15,6 +15,15 @@ function valid(file) {
   assert.ok(Number.isFinite(file.w+file.h) && file.w>0 && file.h>0);
   const grouped=file.sections.flatMap(s=>s.blocks.flatMap(b=>Array.from(b.ids)));
   assert.deepEqual([...grouped].sort(),file.children.map(m=>m.id).sort());
+  for (const section of file.sections) {
+    assert.ok(section.y >= file.header + 16, 'Class heading must clear the file header');
+    for (const block of section.blocks) for (const id of block.ids) {
+      const m = file.children.find(m => m.id === id);
+      assert.ok(m.y >= block.y + 48, 'Method boxes must clear their group heading');
+      assert.ok(m.x >= section.x + 16 && m.x + m.w <= section.x + section.w - 16, 'Methods need class inset on both sides');
+      assert.ok(m.y + m.h <= section.y + section.h - 16, 'Methods need padding below their class');
+    }
+  }
   for (const m of file.children) {
     assert.ok(m.x>=24 && m.y>=file.header && m.x+m.w<=file.w-24 && m.y+m.h<=file.h-24,`Escaped file: ${m.id}`);
     for (const other of file.children) if (m!==other) assert.ok(m.x+m.w<=other.x || other.x+other.w<=m.x || m.y+m.h<=other.y || other.y+other.h<=m.y,`Overlap: ${m.id} / ${other.id}`);
@@ -40,4 +49,4 @@ if(process.argv[2]){
     const f={...source,children:data.nodes.filter(n=>n.parent===source.id).map(n=>({...n}))};scope.layoutMethods(f,outgoing);valid(f);files++;declarations+=f.children.length;
   }
 }
-console.log(JSON.stringify({ok:true,checks:['caller-before-callee','shared-target','recursive-cycle','class-separation','constructor-group','stable-source-order','empty-file','self-call','large-unlinked-class','no-overlap-or-escaped-methods'],files,declarations}));
+console.log(JSON.stringify({ok:true,checks:['caller-before-callee','shared-target','recursive-cycle','class-separation','constructor-group','stable-source-order','empty-file','self-call','large-unlinked-class','no-overlap-or-escaped-methods','reserved-file-and-group-headers','inset-class-content'],files,declarations}));

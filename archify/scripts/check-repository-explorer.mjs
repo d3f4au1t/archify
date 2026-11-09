@@ -79,13 +79,19 @@ try{
  await evaluate(`document.getElementById('fit').click()`);await ready();await capture('narrow-project');
  assert.equal(await evaluate('document.documentElement.scrollHeight<=innerHeight&&document.documentElement.scrollWidth<=innerWidth'),true);
  assert.ok(await evaluate(`document.getElementById('coverage').getBoundingClientRect().width>0`),'Coverage must remain available in narrow preview');
- await search(file);await capture('narrow-file');assert.ok((await state()).width>=500);checks.push('narrow-canvas-and-overlay-details');
+ await search(file);assert.ok(await evaluate(`document.getElementById('canvas').dataset.selectedBounds`),'Selected file must remain visible through collapsed ancestors');await capture('narrow-file');assert.ok((await state()).width>=500);assert.ok(await evaluate(`document.getElementById('inspector').getBoundingClientRect().top-document.getElementById('canvas').getBoundingClientRect().bottom>=8`),'Narrow source details must leave the full map width clear');checks.push('narrow-canvas-and-docked-details');
  await search(method);
  await evaluate(`Array.from(document.querySelectorAll('#inspector button')).find(b=>b.textContent==='Fit connections').click()`);await ready();
  assert.equal(await evaluate(`document.getElementById('inspector').hidden`),true);assert.ok(await evaluate(`JSON.parse(document.getElementById('canvas').dataset.highlightedNodes).length>1`));await capture('narrow-highlighted-connections');checks.push('narrow-fit-connections-uses-full-canvas');
  await evaluate(`document.getElementById('fit').click()`);await ready();const narrow=await state();
  for(const delta of [-120,-120,120,120])await browser.cdp.send('Input.dispatchMouseEvent',{type:'mouseWheel',x:narrow.left+narrow.width/2,y:narrow.top+narrow.height/2,deltaX:0,deltaY:delta},session);
  await ready();assert.equal((await state()).pageY,0);checks.push('no-page-scroll-during-zoom');
+ for(const width of [390,535,920]){
+  await browser.cdp.send('Emulation.setDeviceMetricsOverride',{width,height:850,deviceScaleFactor:1,mobile:false},session);await ready();
+  assert.ok(await evaluate(`['#search-wrap','.actions','#context'].every(selector=>{const r=document.querySelector(selector).getBoundingClientRect();return r.left>=16&&r.right<=innerWidth-16})`),'Header controls must keep margins at '+width+'px');
+  assert.equal(await evaluate('document.documentElement.scrollHeight<=innerHeight&&document.documentElement.scrollWidth<=innerWidth'),true);
+ }
+ checks.push('responsive-header-margins');
  await browser.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]},session);
  await evaluate(`document.getElementById('in').click()`);await ready();checks.push('reduced-motion');
  await browser.cdp.send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false},session);

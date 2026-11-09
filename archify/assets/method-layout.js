@@ -1,15 +1,15 @@
 function layoutMethods(file, outgoing) {
-  const rowGap = 28, componentGap = 20, blockGap = 72;
-  const rowStride = 66 + rowGap, columnStride = 280 + 120;
+  const rowGap = 32, componentGap = 24, blockGap = 88;
+  const rowStride = 80 + rowGap, columnStride = 304 + 128;
   const order = (a, b) => a.line - b.line || a.id.localeCompare(b.id);
   const owners = new Map();
   for (const method of [...file.children].sort(order)) {
-    method.w = 280; method.h = 66; method.header = 0;
+    method.w = 304; method.h = 80; method.header = 0;
     if (!owners.has(method.ownerName)) owners.set(method.ownerName, []);
     owners.get(method.ownerName).push(method);
   }
-  file.header = 88; file.sections = []; file.w = 392;
-  let y = 104;
+  file.header = 128; file.sections = []; file.w = 432;
+  let y = 152;
   for (const [owner, methods] of owners) {
     const byId = new Map(methods.map(m => [m.id, m]));
     const next = new Map(methods.map(m => [m.id, new Set()]));
@@ -19,8 +19,8 @@ function layoutMethods(file, outgoing) {
       next.get(method.id).add(edge.to);
       adjacent.get(method.id).add(edge.to); adjacent.get(edge.to).add(method.id);
     }
-    const section = {owner: owner || 'Module functions', x: 32, y, w: 328, h: 0, blocks: []};
-    let blockY = y + 40;
+    const section = {owner: owner || 'Module functions', x: 40, y, w: 352, h: 0, blocks: []};
+    let blockY = y + 48;
     const visited = new Set();
     for (const method of methods) {
       if (visited.has(method.id) || !adjacent.get(method.id).size) continue;
@@ -69,16 +69,16 @@ function layoutMethods(file, outgoing) {
         let offset = 0;
         for (const component of column) {
           const start = offset;
-          for (const m of component.members) { m.x = 56 + rank * columnStride; m.y = blockY + 40 + offset; offset += rowStride; }
+          for (const m of component.members) { m.x = 64 + rank * columnStride; m.y = blockY + 56 + offset; offset += rowStride; }
           component.center = (start + offset - rowGap) / 2;
           offset += componentGap;
         }
         blockHeight = Math.max(blockHeight, offset - rowGap - componentGap);
       }
-      const width = (columns.size - 1) * columnStride + 328;
+      const width = (columns.size - 1) * columnStride + 352;
       const names = roots.flatMap(c => c.members.map(m => m.label)).join(', ');
-      section.blocks.push({label: 'Calls from ' + names, x: 56, y: blockY, w: width - 48, h: blockHeight + 40, ids: connected.sort((a,b) => a.x-b.x || a.y-b.y).map(m => m.id)});
-      section.w = Math.max(section.w, width); blockY += blockHeight + 40 + blockGap;
+      section.blocks.push({label: 'Calls from ' + names, x: 64, y: blockY, w: width - 48, h: blockHeight + 56, ids: connected.sort((a,b) => a.x-b.x || a.y-b.y).map(m => m.id)});
+      section.w = Math.max(section.w, width); blockY += blockHeight + 56 + blockGap;
     }
     const unlinked = methods.filter(m => !adjacent.get(m.id).size);
     const groups = [
@@ -87,14 +87,14 @@ function layoutMethods(file, outgoing) {
     ];
     for (const [label, members] of groups) {
       if (!members.length) continue;
-      const rows = Math.min(8, members.length), cols = Math.ceil(members.length / rows);
-      members.forEach((m, i) => { m.x = 56 + Math.floor(i / rows) * 336; m.y = blockY + 40 + (i % rows) * rowStride; });
-      const width = (cols - 1) * 336 + 328, height = (rows - 1) * rowStride + 66 + 40;
-      section.blocks.push({label: owner ? label : 'Module functions · source order', x: 56, y: blockY, w: width - 48, h: height, ids: members.map(m => m.id)});
+      const rows = Math.min(6, members.length), cols = Math.ceil(members.length / rows);
+      members.forEach((m, i) => { m.x = 64 + Math.floor(i / rows) * 368; m.y = blockY + 56 + (i % rows) * rowStride; });
+      const width = (cols - 1) * 368 + 352, height = (rows - 1) * rowStride + 80 + 56;
+      section.blocks.push({label: owner ? label : 'Module functions · source order', x: 64, y: blockY, w: width - 48, h: height, ids: members.map(m => m.id)});
       section.w = Math.max(section.w, width); blockY += height + blockGap;
     }
     section.h = blockY - y - 36; file.sections.push(section);
     file.w = Math.max(file.w, section.w + 64); y = blockY + 28;
   }
-  file.h = Math.max(150, y);
+  file.h = Math.max(192, y);
 }
