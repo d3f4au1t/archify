@@ -14,7 +14,7 @@ Coverage is measured against the inventory, not a target node count. A few repre
 
 ## Build the Java/Python explorer
 
-The included builder uses the installed JDK compiler parser for Java and Python's standard AST. It reads a pinned Git snapshot, does not execute project code, and writes a standalone HTML, editable `.index.json`, and `.index-check.json`. Requires Python 3.12+ and JDK 17+. Other languages remain file-only until an appropriate parser is added; do not infer their call graphs with name matching alone.
+The included builder uses the installed JDK compiler parser for Java and Python's standard AST. It reads a pinned Git snapshot, does not execute project code, and writes a standalone HTML, editable `.index.json`, and `.index-check.json`. Requires Python 3.12+; JDK 17+ is needed only when the snapshot contains Java files. Other languages remain file-only until an appropriate parser is added; do not infer their call graphs with name matching alone.
 
 Author optional notes in this shape, using the actual revision and source evidence:
 

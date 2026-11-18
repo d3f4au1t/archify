@@ -249,10 +249,12 @@ def build(repo, revision, output, notes_path=None):
         archive = git(repo, 'archive', revision)
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
             tar.extractall(root, filter='data')
-        java = subprocess.run(['java', str(Path(__file__).with_name('IndexJava.java')), str(root)], capture_output=True, text=True)
-        if java.returncode:
-            raise RuntimeError('Java parse failed: '+java.stderr+'\n'+java.stdout[-2500:])
-        index = json.loads(java.stdout)
+        index = {'files': [], 'classes': [], 'methods': []}
+        if any(path.endswith('.java') for path in paths):
+            java = subprocess.run(['java', str(Path(__file__).with_name('IndexJava.java')), str(root)], capture_output=True, text=True)
+            if java.returncode:
+                raise RuntimeError('Java parse failed: '+java.stderr+'\n'+java.stdout[-2500:])
+            index = json.loads(java.stdout)
         imports = resolve_java(index)
         all_methods = index['methods']
         for path in paths:

@@ -77,5 +77,33 @@ class Callback { void target() {} void setup() { Runnable r = () -> target(); } 
         self.assertIn('callback', methods[0]['boundNames'])
 
 
+class NonJavaRepositoryTests(unittest.TestCase):
+    def test_builds_python_and_file_only_repositories(self):
+        for filename, source, count in [
+            ('example.py', 'def helper():\n    return 1\n\ndef run():\n    return helper()\n', 2),
+            ('README.md', '# Documentation only\n', 0),
+        ]:
+            with self.subTest(filename=filename), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)/'repo'
+                root.mkdir()
+                (root/filename).write_text(source)
+                def git(*args):
+                    return subprocess.check_output(['git', '-C', str(root), *args], stderr=subprocess.DEVNULL)
+                git('init')
+                git('remote', 'add', 'origin', 'https://github.com/example/fixture.git')
+                git('add', filename)
+                git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+                    '-c', 'core.hooksPath=/dev/null', '-c', 'commit.gpgsign=false', 'commit', '-m', 'Fixture')
+                output = Path(temporary)/'explorer.html'
+                receipt = builder.build(root, 'HEAD', output)
+                data = json.loads(output.with_suffix('.index.json').read_text())
+                self.assertTrue(receipt['ok'])
+                self.assertEqual(data['coverage']['files'], 1)
+                self.assertEqual(data['coverage']['javaFiles'], 0)
+                self.assertEqual(data['coverage']['methods'], count)
+                self.assertEqual(len(data['edges']), int(count > 0))
+                self.assertIn(filename, output.read_text())
+
+
 if __name__ == '__main__':
     unittest.main()
