@@ -1,0 +1,54 @@
+{
+  "ok": true,
+  "artifact": "python-slugify.html",
+  "sha256": "f58939d4b7f9db87d8795cb9d3401ee8562614fdf67413ac8c315ba6056aa201",
+  "repository": {
+    "url": "https://github.com/un33k/python-slugify",
+    "revision": "4b6b5b42f050f1ce96899e015247d5e3901cc433"
+  },
+  "coverage": {
+    "files": 45,
+    "folders": 9,
+    "javaFiles": 0,
+    "pythonFiles": 18,
+    "methods": 172,
+    "callSites": 979,
+    "resolvedCalls": 64,
+    "unresolvedCalls": 915,
+    "imports": 0
+  },
+  "checks": [
+    "all-tracked-files-included",
+    "java-parse-no-errors",
+    "python-parse-no-errors",
+    "unique-symbols",
+    "source-line-ranges",
+    "edge-endpoints",
+    "parent-ownership"
+  ],
+  "archifyCommit": "560eefd",
+  "toolFix": "Skip Java parsing for snapshots without Java sources; installed and pushed to fork/codex/continuous-code-explorer.",
+  "verification": {
+    "sourceIndexRegressionTests": "8 passed, including Python-only and documentation-only builds",
+    "methodLayout": "Passed all 45 files and 172 declarations",
+    "browser": [
+      "Rendered overview and method views in the app browser",
+      "Search \u2192 slugify.py \u2192 _modern_slugify journey passed",
+      "Selected method highlights 6 nodes and 5 directed links",
+      "Wheel zoom and reversal kept document scroll at (0,0); observed anchor drift below 0.1 px",
+      "Inspector scroll changed independently while page stayed fixed",
+      "Guided modern flow resolves to source details",
+      "Pinned source-evidence links present",
+      "Light and dark themes inspected",
+      "535\u00d7852 and 1280\u00d7900 layouts inspected; viewport override reset",
+      "No browser warning/error logs"
+    ],
+    "screenshot": "connections-desktop.jpg"
+  },
+  "notChecked": [
+    "Project code and dependencies were not executed",
+    "Pinch and drag cancellation were not re-exercised",
+    "Full Archify release/browser suites and release ZIP regeneration were not run for this focused builder fix"
+  ],
+  "callResolution": "64 of 979 call sites resolve to same-file symbols; external and cross-file Python calls remain unresolved. All 45 tracked files and 172 declarations are present."
+}

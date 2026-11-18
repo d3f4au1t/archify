@@ -1,0 +1,40 @@
+{
+  "revision": "4b6b5b42f050f1ce96899e015247d5e3901cc433",
+  "areas": [
+    {"path": "slugify", "label": "Text to URL-friendly slugs", "summary": "The public slugify function chooses the compatibility pipeline by default. Callers can explicitly select the modern pipeline; the command-line entry point uses the same public function."},
+    {"path": "slugify/__main__.py", "label": "Command-line input", "summary": "Parses text or standard input and conversion options, translates arguments into public API parameters, and prints the resulting slug."},
+    {"path": "slugify/slugify.py", "label": "Algorithm selection and modern conversion", "summary": "Selects legacy or modern conversion. Modern helpers decode entities, transliterate text, preserve allowed Unicode characters, and enforce output length."},
+    {"path": "slugify/_legacy.py", "label": "Compatibility conversion", "summary": "Preserves the legacy output pipeline, including replacement stages, transliteration, entity decoding, stopword removal, and optional smart truncation."},
+    {"path": "slugify/__init__.py", "label": "Public exports", "summary": "Re-exports conversion functions, special-character mappings, and package metadata."},
+    {"path": "tests", "label": "Behavior and compatibility checks", "summary": "Checks legacy behavior, release regressions, command-line interruption, backend errors, combining marks, and modern word boundaries."}
+  ],
+  "flows": [
+    {
+      "name": "CLI → default conversion",
+      "steps": [
+        {"path": "slugify/__main__.py", "symbol": "main", "line": 103, "note": "The entry point parses arguments, builds keyword parameters, and prints the public slugify result."},
+        {"path": "slugify/__main__.py", "symbol": "parse_args", "line": 51, "note": "Accept text arguments or standard input, validate replacement syntax, and reject simultaneous text and stdin."},
+        {"path": "slugify/__main__.py", "symbol": "slugify_params", "line": 91, "note": "Forward algorithm, backend, and replacement stage only when explicitly supplied, preserving API defaults."},
+        {"path": "slugify/slugify.py", "symbol": "slugify", "line": 265, "note": "The default algorithm is legacy. This branch delegates to the compatibility implementation in _legacy.py."},
+        {"path": "slugify/_legacy.py", "symbol": "slugify", "line": 141, "note": "Normalize or transliterate, decode entities, clean characters, remove stopwords, and apply requested replacements."},
+        {"path": "slugify/_legacy.py", "symbol": "smart_truncate", "line": 68, "note": "Called only when max_length is positive; the caller then applies the requested separator and returns the slug."}
+      ]
+    },
+    {
+      "name": "Modern → normalize and shorten",
+      "steps": [
+        {"path": "slugify/slugify.py", "symbol": "slugify", "line": 271, "note": "Explicit algorithm='modern' selects this pipeline; it is not the default."},
+        {"path": "slugify/slugify.py", "symbol": "_modern_slugify", "line": 182, "note": "Validate length, separator, input type, backend, and replacement stage before transforming text."},
+        {"path": "slugify/slugify.py", "symbol": "_decode_entities", "line": 49, "note": "Decode enabled named, decimal, and hexadecimal references before normalization."},
+        {"path": "slugify/slugify.py", "symbol": "_transliterate", "line": 59, "note": "On the ASCII-output branch, ASCII input returns immediately; other text uses the selected transliteration backend."},
+        {"path": "slugify/slugify.py", "symbol": "_replace_disallowed_unicode", "line": 94, "note": "Alternative Unicode-output branch: retain letters, numbers, valid combining marks, and permitted joiners; replace other characters with separators."},
+        {"path": "slugify/slugify.py", "symbol": "_modern_truncate", "line": 121, "note": "After cleanup, stopwords, and replacements, enforce length using whole words or a hard cut, accounting for the requested separator."}
+      ]
+    }
+  ],
+  "limitations": [
+    "Python call links resolve same-file lexical calls. Cross-file imports, external libraries, and dynamic dispatch may remain unresolved; inventory coverage is broader than call-resolution coverage.",
+    "Guided paths explain inspected source branches, not a recorded execution. The modern transliteration and Unicode-preservation steps are alternatives.",
+    "All tracked files and parsed Python declarations are included. Project code and dependencies were not executed."
+  ]
+}
