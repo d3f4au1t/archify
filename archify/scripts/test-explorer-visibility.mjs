@@ -9,6 +9,11 @@ const folder={id:'folder',kind:'folder',x:50,y:50,w:2400,h:2400,header:180,child
 const root={id:'root',kind:'folder',x:0,y:0,w:3000,h:3000,header:240,children:[folder]};
 const scope={root,selected:null,camera:{x:0,y:0,k:.08},width:535,height:280,visible:[],readingPath:new Set(),readingReveal:0,children:n=>n.children,clamp:(v,a,b)=>Math.max(a,Math.min(b,v))};
 vm.runInNewContext(source,scope);
+vm.runInNewContext(html.slice(html.indexOf('function selectionReveal('),html.indexOf('function detail(n){')),scope);
+const method={kind:'method',w:304,h:80};
+assert.equal(scope.selectionReveal(method,.25),1,'A readable selected method must fully reveal ancestor headers, avoiding collapsed titles over its connections');
+assert.equal(scope.selectionReveal(method,.1),0,'Unreadable tiny methods must not force expanded headers');
+assert.equal(scope.selectionReveal({kind:'file',w:96,h:32},1),.5,'Files keep their progressive reveal');
 scope.collect(root);
 assert.ok(!scope.visible.some(v=>v.n===file),'Unfocused small folders should stay collapsed');
 scope.selected=file;scope.readingPath=new Set(['root','folder','file']);
@@ -25,4 +30,4 @@ assert.equal(scope.detail(folder),1,'Expanded ancestor must release its collapse
 scope.readingReveal=0;scope.camera.k=1;scope.visible=[];scope.collect(root);
 assert.equal(scope.detail(file),1,'Zooming in exposes file detail naturally');
 assert.ok(scope.visible.some(v=>v.n===file));
-console.log(JSON.stringify({ok:true,checks:['natural-collapse','progressive-selection-reveal','short-viewport-selection','single-owner-label-level','natural-file-detail']}));
+console.log(JSON.stringify({ok:true,checks:['natural-collapse','progressive-selection-reveal','short-viewport-selection','single-owner-label-level','natural-file-detail','small-method-clears-ancestor-titles']}));

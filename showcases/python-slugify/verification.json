@@ -1,7 +1,7 @@
 {
   "ok": true,
   "artifact": "python-slugify.html",
-  "sha256": "f58939d4b7f9db87d8795cb9d3401ee8562614fdf67413ac8c315ba6056aa201",
+  "sha256": "c562d54c1cbfab471a9a62e38452d852e67948939c80e6d455fc76c2f96ef003",
   "repository": {
     "url": "https://github.com/un33k/python-slugify",
     "revision": "4b6b5b42f050f1ce96899e015247d5e3901cc433"
@@ -26,29 +26,44 @@
     "edge-endpoints",
     "parent-ownership"
   ],
-  "archifyCommit": "560eefd",
-  "toolFix": "Skip Java parsing for snapshots without Java sources; installed and pushed to fork/codex/continuous-code-explorer.",
+  "rendererSha256": "46e2e1aaf47242cdf50212b28f519c27418f538407d73466fe83d02addd8ce43",
+  "visualReference": {
+    "repository": "https://github.com/tt-a1i/archify",
+    "revision": "11b0d6031853bdae89eed57e7979aabbf0034097",
+    "path": "archify/examples/web-app-rendered.html",
+    "style": "Classic",
+    "screenshot": "original-archify-reference.jpg"
+  },
   "verification": {
-    "sourceIndexRegressionTests": "8 passed, including Python-only and documentation-only builds",
-    "methodLayout": "Passed all 45 files and 172 declarations",
+    "methodLayout": "Passed 45 files / 172 declarations; no graph or layout-data changes",
+    "labelChecks": [
+      "exact symbol spelling",
+      "two-line underscore wrapping",
+      "long unbroken labels",
+      "Unicode labels",
+      "short labels"
+    ],
+    "visibilityChecks": "6 passed, including small selected methods clearing collapsed ancestor titles",
+    "arrowChecks": "12 scenarios passed; one destination arrowhead and separate reciprocal ports",
+    "designDetector": "No findings",
     "browser": [
-      "Rendered overview and method views in the app browser",
-      "Search \u2192 slugify.py \u2192 _modern_slugify journey passed",
-      "Selected method highlights 6 nodes and 5 directed links",
-      "Wheel zoom and reversal kept document scroll at (0,0); observed anchor drift below 0.1 px",
-      "Inspector scroll changed independently while page stayed fixed",
-      "Guided modern flow resolves to source details",
-      "Pinned source-evidence links present",
-      "Light and dark themes inspected",
-      "535\u00d7852 and 1280\u00d7900 layouts inspected; viewport override reset",
-      "No browser warning/error logs"
+      "Original Classic example visually inspected in light and dark themes",
+      "Explorer overview, file, and selected-method views inspected",
+      "390, 535, 920, and 1280 pixel layouts checked; no page overflow and header margins retained",
+      "Clicking a method highlights its 6-node / 5-edge neighborhood",
+      "Long method name wraps without changing its spelling",
+      "Signature expands and collapses with mouse and keyboard",
+      "Wheel zoom changes scale while page remains at scroll (0,0)",
+      "Small method selection reveals ancestor headings without overlapping collapsed titles",
+      "Both color themes inspected",
+      "No browser warnings or errors; temporary viewport reset"
     ],
     "screenshot": "connections-desktop.jpg"
   },
   "notChecked": [
-    "Project code and dependencies were not executed",
-    "Pinch and drag cancellation were not re-exercised",
-    "Full Archify release/browser suites and release ZIP regeneration were not run for this focused builder fix"
+    "Full Archify release and cross-browser suites were not rerun",
+    "Release ZIP and other previously generated project maps were not rebuilt",
+    "Project code and dependencies were not executed"
   ],
-  "callResolution": "64 of 979 call sites resolve to same-file symbols; external and cross-file Python calls remain unresolved. All 45 tracked files and 172 declarations are present."
+  "callResolution": "All 45 tracked files and 172 declarations are present. 64 of 979 call sites resolve; external and cross-file Python calls remain unresolved."
 }

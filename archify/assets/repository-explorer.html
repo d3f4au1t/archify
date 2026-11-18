@@ -4,8 +4,8 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Repository explorer</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--surface:#101c2c;--raised:#192b3d;--ink:#e7eef6;--muted:#adc0d2;--line:#304357;--accent:#6cddd0;--field:#0b1523;--space:24px}
-:root[data-theme=light]{color-scheme:light;--bg:#f2f5f8;--surface:#fff;--raised:#e8eff4;--ink:#172b3e;--muted:#486078;--line:#becdda;--accent:#007b70;--field:#f6f9fb}
+:root{color-scheme:dark;--bg:#020617;--canvas:#080d1c;--dot:#243044;--surface:#0f172a;--raised:#1b2940;--ink:#f1f5f9;--muted:#a1afc2;--line:#283449;--accent:#34d399;--field:#0b1222;--folder:#d3af63;--file:#70bdd2;--method:#60c9a8;--space:24px}
+:root[data-theme=light]{color-scheme:light;--bg:#f4f5f7;--canvas:#fff;--dot:#e2e7ec;--surface:#fff;--raised:#edf2f6;--ink:#111827;--muted:#536174;--line:#d9e0e8;--accent:#047857;--field:#f8fafc;--folder:#926119;--file:#14758b;--method:#168065}
 *{box-sizing:border-box;scrollbar-color:var(--line) var(--surface);scrollbar-width:thin}
 html,body{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 body{display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,sans-serif}
@@ -20,9 +20,9 @@ input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:8px;
 input::placeholder{color:var(--muted);opacity:1}
 ::selection{background:var(--accent);color:var(--bg)}
 a{color:var(--accent);text-underline-offset:4px}
-header{flex:none;padding:20px var(--space) 0;display:grid;grid-template-columns:minmax(190px,1fr) minmax(210px,360px) auto;gap:16px 24px;align-items:center;background:var(--surface);border-bottom:1px solid var(--line)}
+header{flex:none;padding:22px var(--space) 0;display:grid;grid-template-columns:minmax(190px,1fr) minmax(210px,340px) auto;gap:16px 24px;align-items:center;background:var(--bg)}
 header>div:first-child{min-width:0}
-h1{font-size:18px;line-height:1.35;letter-spacing:-.02em;margin:0;overflow-wrap:anywhere}
+h1{font-size:20px;line-height:1.35;letter-spacing:-.02em;margin:0;overflow-wrap:anywhere}
 #counts{font-size:12px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
 #search-wrap{position:relative;min-width:0}
 #results{position:absolute;top:calc(100% + 8px);left:0;right:0;max-height:52vh;overflow:auto;background:var(--surface);border-radius:12px;z-index:5;box-shadow:0 8px 32px #0004;padding:6px}
@@ -30,8 +30,10 @@ h1{font-size:18px;line-height:1.35;letter-spacing:-.02em;margin:0;overflow-wrap:
 #results button{display:block;text-align:left;width:100%;border:0;border-radius:6px;padding:12px;overflow-wrap:anywhere}
 #results small{display:block;color:var(--muted);font-size:12px;margin-top:4px;line-height:1.5}
 #results p{padding:12px;margin:0;color:var(--muted)}
-.actions{display:flex;align-items:center;gap:8px;min-width:0}
-#context{grid-column:1/-1;display:flex;align-items:center;gap:20px;min-width:0;padding:12px 0;border-top:1px solid var(--line)}
+.actions{display:flex;align-items:center;gap:4px;min-width:0;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.actions button,.actions select{border-color:transparent;background:transparent;padding-inline:10px}
+.actions button:hover,.actions select:hover{background:var(--raised)}
+#context{grid-column:1/-1;display:flex;align-items:center;gap:20px;min-width:0;padding:10px 0 0}
 .breadcrumb{display:flex;gap:0;overflow-x:auto;align-items:center;flex:1;min-width:0;white-space:nowrap;scrollbar-width:none}
 .breadcrumb button{flex:none;min-height:32px;border:0;background:transparent;font-size:12px;max-width:210px;overflow:hidden;text-overflow:ellipsis;padding:4px 8px;color:var(--muted)}
 .breadcrumb button+button::before{content:'/';display:inline-block;margin-right:16px;color:var(--muted)}
@@ -39,20 +41,21 @@ h1{font-size:18px;line-height:1.35;letter-spacing:-.02em;margin:0;overflow-wrap:
 .breadcrumb button:last-child{color:var(--ink);font-weight:600}
 #level{font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 #edges{font-size:12px;flex:none}
-#workspace{flex:1;position:relative;min-height:0;display:flex;gap:16px;padding:16px;overflow:hidden}
-#stage{flex:1;min-width:0;min-height:0;position:relative;overflow:hidden;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+#workspace{flex:1;position:relative;min-height:0;display:flex;gap:16px;padding:16px var(--space);overflow:hidden}
+#stage{flex:1;min-width:0;min-height:0;position:relative;overflow:hidden;background-color:var(--canvas);background-image:radial-gradient(var(--dot) .75px,transparent .75px);background-size:24px 24px;border:1px solid var(--line);border-radius:16px}
 canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 canvas.dragging{cursor:grabbing}
 .canvas-controls{position:absolute;bottom:20px;left:20px;display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
 .canvas-controls button{border-color:transparent;min-width:40px;font-size:18px}
 .canvas-controls #fit{font-size:12px;min-width:80px}
-#hint{position:absolute;bottom:30px;right:24px;max-width:calc(100% - 310px);text-align:right;color:var(--muted);font-size:12px;pointer-events:none;background:var(--bg);padding:2px 0}
+#hint{position:absolute;bottom:30px;right:24px;max-width:calc(100% - 310px);text-align:right;color:var(--muted);font-size:12px;pointer-events:none;background:var(--canvas);padding:2px 0}
 #inspector{width:368px;max-width:40vw;flex:none;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:auto;padding:var(--space);overscroll-behavior:contain}
 #inspector[hidden]{display:none}
 #inspector .heading{display:flex;justify-content:space-between;gap:16px;align-items:start;margin-bottom:20px}
 #inspector .heading>div{min-width:0}
 #inspector .heading button{flex:none}
 #inspector h2{margin:0 0 8px;font-size:20px;line-height:1.35;overflow-wrap:anywhere}
+#inspector[data-kind=method] h2{font:600 17px/1.5 ui-monospace,SFMono-Regular,monospace}
 #inspector h3{font-size:14px;margin:32px 0 12px;line-height:1.5}
 #inspector p{color:var(--muted);margin:12px 0 16px;overflow-wrap:anywhere}
 #inspector .path{font-size:12px;overflow-wrap:anywhere;line-height:1.7}
@@ -66,7 +69,12 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.7 ui-monospace,SFMon
 summary{cursor:pointer;padding:12px 0;font-size:13px;line-height:1.5}
 #inspector ul{padding-left:20px;color:var(--muted);font-size:14px;line-height:1.65}
 #inspector li{margin-bottom:12px}
-#status{flex:none;font-size:12px;color:var(--muted);min-height:28px;padding:0 var(--space) 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+footer{flex:none;display:flex;align-items:center;gap:24px;padding:0 var(--space) 12px;min-height:28px}
+#status{flex:1;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legend{display:flex;gap:16px;flex:none;font-size:11px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border:1px solid currentColor;border-radius:3px}
+.legend .folder{color:var(--folder)}.legend .file{color:var(--file)}.legend .method{color:var(--method)}
 #tour{max-width:160px;min-width:0;font-size:12px}#coverage{font-size:12px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 @media(max-width:1100px){header{grid-template-columns:minmax(0,1fr) auto;gap:16px}#search-wrap{grid-column:1/-1;grid-row:2}#context{gap:12px}#hint{bottom:82px;left:20px;right:auto;max-width:calc(100% - 40px);text-align:left}}
@@ -82,9 +90,10 @@ summary{cursor:pointer;padding:12px 0;font-size:13px;line-height:1.5}
  #inspector .heading{margin-bottom:16px}
  #hint{bottom:76px;left:16px;max-width:calc(100% - 32px);font-size:12px}
  .canvas-controls{left:16px;bottom:16px}
- #status{font-size:12px;padding-inline:16px}
+ footer{padding-inline:16px}.legend{gap:10px}
 }
-@media(max-width:560px){header{grid-template-columns:minmax(0,1fr)}.actions{grid-row:2;justify-content:flex-start}#search-wrap{grid-row:3}#tour{max-width:none;flex:1}#hint{display:none}}
+@media(max-width:560px){header{grid-template-columns:minmax(0,1fr) auto;column-gap:12px}.actions{gap:0;padding:2px}.actions button,.actions select{padding-inline:8px}#tour{max-width:110px}#hint{display:none}.legend{display:none}}
+@media(max-width:440px){header{grid-template-columns:minmax(0,1fr)}.actions{grid-row:2;justify-content:flex-start}#search-wrap{grid-row:3}#tour{max-width:none;flex:1}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
@@ -102,7 +111,7 @@ summary{cursor:pointer;padding:12px 0;font-size:13px;line-height:1.5}
  </section>
  <aside id="inspector" aria-label="Source details" hidden></aside>
 </main>
-<div id="status" role="status" aria-live="polite">Preparing the map…</div>
+<footer><div id="status" role="status" aria-live="polite">Preparing the map…</div><div class="legend" aria-label="Map colors"><span><i class="folder" aria-hidden="true"></i>Folder</span><span><i class="file" aria-hidden="true"></i>File</span><span><i class="method" aria-hidden="true"></i>Method</span></div></footer>
 <noscript>This explorer needs JavaScript. Open the saved HTML in a browser with JavaScript enabled.</noscript>
 <script id="repository-data" type="application/json">__REPOSITORY_DATA__</script>
 <script>
@@ -122,8 +131,7 @@ let camera={x:0,y:0,k:1},target={...camera},width=0,height=0,raf=0,lastTime=0,vi
 let focus={ids:new Set(),containers:new Set(),edges:0},readingPath=new Set(),readingReveal=0;
 let theme=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
-const palettes={dark:{bg:'#0b1220',ink:'#e7eef6',muted:'#b0c2d3',line:'#43596e',edge:'#79b8c4',selected:'#7eefe0',file:'#132737',method:'#163d43',folder:'#101e2e'},light:{bg:'#f2f5f8',ink:'#172b3e',muted:'#486078',line:'#9aafc2',edge:'#367e8d',selected:'#007b70',file:'#e8f3f2',method:'#d5efeb',folder:'#edf2f7'}};
-const accents={'Robot code':'#37b7a0','Local Pedro core':'#58a6d9','Robot controller':'#738fbd','SDK samples':'#8a89b8','Tests and stubs':'#b18ab8','Tools':'#d2aa60','Documentation':'#7e9dad','Build and resources':'#7e9dad','Project':'#79b8c4'};
+const palettes={dark:{bg:'#080d1c',ink:'#f1f5f9',muted:'#a1afc2',line:'#344155',edge:'#a1afc2',selected:'#5ce0b5',file:'rgba(112,189,210,.04)',fileMask:'#0c1423',method:'#12312e',folder:'rgba(211,175,99,.025)',folderLine:'#8a754b',fileLine:'#487f91',methodLine:'#4e9987'},light:{bg:'#fff',ink:'#111827',muted:'#536174',line:'#b8c5d2',edge:'#64748b',selected:'#047857',file:'rgba(20,117,139,.025)',fileMask:'#f9fcfd',method:'#e5f5ef',folder:'rgba(146,97,25,.025)',folderLine:'#a58d69',fileLine:'#6c9aa9',methodLine:'#559c87'}};
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text!=null)e.textContent=text;if(cls)e.className=cls;return e;};
 const label=n=>n.label;
@@ -173,7 +181,18 @@ function minimum(){return Math.min((width-48)/root.w,(height-48)/root.h)*.55;}
 function fit(n,instant=false){n=n.alias||n;const padding=width<760?28:56,bottom=width<560?80:112;const k=clamp(Math.min((width-padding*2)/n.w,Math.max(40,height-padding-bottom)/n.h),minimum(),3);target={k,x:width/2-(n.x+n.w/2)*k,y:padding+(height-padding-bottom)/2-(n.y+n.h/2)*k};if(instant||reduced.matches)camera={...target};requestDraw();}
 function zoom(factor,x=width/2,y=height/2){const k=clamp(target.k*factor,minimum(),5);const wx=(x-target.x)/target.k,wy=(y-target.y)/target.k;target={k,x:x-wx*k,y:y-wy*k};if(reduced.matches)camera={...target};requestDraw();}
 function text(value,x,y,maxWidth,font,color,alpha=1){if(maxWidth<20||alpha<=0)return;ctx.save();ctx.globalAlpha*=alpha;ctx.font=font;ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=3;ctx.lineJoin='round';ctx.fillStyle=color;let s=value;if(ctx.measureText(s).width>maxWidth){while(s.length&&ctx.measureText(s+'…').width>maxWidth)s=s.slice(0,-1);s+='…';}ctx.strokeText(s,x,y);ctx.fillText(s,x,y);ctx.restore();}
+function methodLabelLines(value,maxWidth,font){
+ ctx.font=font;if(ctx.measureText(value).width<=maxWidth)return[value];
+ let end=value.length;while(end>1&&ctx.measureText(value.slice(0,end)).width>maxWidth)end--;
+ const boundary=value.slice(0,end).lastIndexOf('_')+1;
+ if(boundary>end*.5)end=boundary;
+ return[value.slice(0,end),value.slice(end)];
+}
 function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,Math.min(r,w/2,h/2));}
+function selectionReveal(n,k){
+ const method=n.kind==='method';
+ return Math.min(clamp((n.w*k-48)/(method?24:48),0,1),clamp((n.h*k-(method?12:16))/(method?6:32),0,1));
+}
 function detail(n){
  if(n===root)return 1;
  const natural=n.kind==='folder'?clamp((n.header*camera.k-38)/28,0,1):clamp((n.header*camera.k-22)/16,0,1);
@@ -194,17 +213,23 @@ function collect(n,alpha=1,depth=0){
 }
 function drawBox(item,p){
  const {n,x,y,w,h}=item;const connected=focus.ids.has(n.id),alpha=item.alpha*(focus.ids.size?(connected?1:focus.containers.has(n.id)?.72:.15):1);ctx.save();ctx.globalAlpha=alpha;
- const active=selected?.id===n.id||hover?.id===n.id||connected;
- ctx.fillStyle=p[n.kind]||p.folder;rounded(x,y,w,h,n.kind==='method'?5:9);ctx.fill();
- ctx.strokeStyle=active?p.selected:n.kind==='folder'?(accents[n.category]||p.line):p.line;ctx.lineWidth=active?2:1;ctx.globalAlpha*=active?1:n.kind==='folder'?.65:.8;ctx.stroke();
+ const active=selected?.id===n.id||hover?.id===n.id,emphasized=active||connected;
+ ctx.fillStyle=p[n.kind]||p.folder;rounded(x,y,w,h,n.kind==='method'?7:12);if(n!==root)ctx.fill();
+ ctx.strokeStyle=emphasized?p.selected:p[n.kind+'Line']||p.line;ctx.lineWidth=active?2:connected?1.5:1;ctx.globalAlpha*=emphasized?1:n===root?.22:n.kind==='folder'?.5:.75;ctx.stroke();
  ctx.restore();
 }
 function drawLabels(item,p){
  const {n,x,y,w,h}=item;ctx.save();ctx.globalAlpha=item.alpha*(focus.ids.size?(focus.ids.has(n.id)?1:focus.containers.has(n.id)?.72:.15):1);
  // A glyph-sized background outline keeps bright lines from striking through letters.
- ctx.fillStyle=p[n.kind]||p.folder;
+ ctx.fillStyle=n.kind==='folder'?p.bg:p[n.kind+'Mask']||p[n.kind];
  if(n.kind==='method'){
-  if(w>72&&h>18){const inset=Math.min(18,w*.1);text(n.label,x+inset,y+Math.min(30,h*.56),w-inset*2,`500 ${clamp(14*camera.k,11,16)}px ui-monospace,monospace`,p.ink);if(h>54)text(`${n.ownerName.split('.').at(-1)} · L${n.line}`,x+inset,y+Math.min(54,h*.82),w-inset*2,'12px system-ui',p.muted);}
+  if(w>72&&h>18){
+   const inset=Math.min(18,w*.1),size=clamp(14*camera.k,12,16),font=`500 ${size}px ui-monospace,monospace`;
+   const lines=h>=44?methodLabelLines(n.label,w-inset*2,font):[n.label],lineHeight=size+4;
+   const metadata=h>(lines.length>1?78:58),baseline=metadata?Math.min(30,h*.4):h/2+size*.35-(lines.length-1)*lineHeight/2;
+   lines.forEach((line,i)=>text(line,x+inset,y+baseline+i*lineHeight,w-inset*2,font,p.ink));
+   if(metadata)text([n.ownerName.split('.').at(-1),`L${n.line}`].filter(Boolean).join(' · '),x+inset,y+Math.min(h-12,baseline+(lines.length-1)*lineHeight+24),w-inset*2,'12px system-ui',p.muted);
+  }
  }else{
   const band=Math.min(n.header*camera.k,h*.4),fs=n.kind==='folder'?clamp(band*.34,12,23):clamp(band*.4,14,20),inset=clamp(w*.035,16,28);
   const collapsed=1-detail(n);
@@ -243,7 +268,7 @@ function drawEdges(p){
  for(const {a,b,count,kind,focused} of [...groups.values()].sort((a,b)=>Number(a.focused)-Number(b.focused))){
   const local=a.n.kind==='method'&&b.n.kind==='method'&&a.n.parent===b.n.parent;
   const withinFile=selected?.kind==='file'&&a.n.path===selected.path&&b.n.path===selected.path;
-  ctx.save();ctx.globalAlpha=focus.ids.size?(focused?.95:.025):selected?.kind==='file'?(withinFile?.65:.045):local?.45:groups.size>90?.07:.16;ctx.strokeStyle=focused?p.selected:p.edge;ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=focused?2.4:1;
+  ctx.save();ctx.globalAlpha=focus.ids.size?(focused?.9:.025):selected?.kind==='file'?(withinFile?.65:.045):local?.5:groups.size>90?.07:.16;ctx.strokeStyle=focused?p.selected:p.edge;ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=focused?1.8:1;
   if(kind!=='call')ctx.setLineDash([4,4]);
   // Separate outgoing tails from incoming tips, including opposite-direction links.
   const right=b.x+b.w/2>a.x+a.w/2;
@@ -266,11 +291,11 @@ function draw(time){
  camera.x+=(target.x-camera.x)*t;camera.y+=(target.y-camera.y)*t;camera.k+=(target.k-camera.k)*t;
  const moving=Math.abs(camera.x-target.x)+Math.abs(camera.y-target.y)+Math.abs(camera.k-target.k)*100>.06;
  if(!moving)camera={...target};
- const dpr=Math.min(devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);const p=palettes[theme];ctx.fillStyle=p.bg;ctx.fillRect(0,0,width,height);
+ const dpr=Math.min(devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);const p=palettes[theme];ctx.clearRect(0,0,width,height);
  focus=neighborhood();
  // Fitting a selection must reveal its ownership path even in a short viewport.
  readingPath=new Set(selected?ancestors(selected).flatMap(n=>[n.id,n.alias?.id]).filter(Boolean):[]);
- readingReveal=selected?Math.min(clamp((selected.w*camera.k-48)/48,0,1),clamp((selected.h*camera.k-16)/32,0,1)):0;
+ readingReveal=selected?selectionReveal(selected,camera.k):0;
  visible=[];collect(root);
  // Connections cross box surfaces, while labels remain above every connection.
  for(const item of visible)drawBox(item,p);
@@ -299,7 +324,7 @@ canvas.addEventListener('pointerleave',()=>{hover=null;requestDraw();});
 canvas.addEventListener('dblclick',event=>{event.preventDefault();const p=point(event),n=hit(p.x,p.y);selected=n;fit(n);breadcrumb(n);});
 function closePanel(){panel.hidden=true;resize();}
 function clearSelection(){selected=null;closePanel();breadcrumb(root);status.textContent=defaultStatus;requestDraw();}
-function panelHeader(title,type){panel.replaceChildren();panel.hidden=false;resize();const heading=make('div',null,'heading');const inner=make('div');inner.append(make('h2',title),make('div',type,'type'));const close=make('button','Close');close.onclick=closePanel;heading.append(inner,close);panel.append(heading);}
+function panelHeader(title,type){panel.replaceChildren();delete panel.dataset.kind;panel.hidden=false;resize();const heading=make('div',null,'heading');const inner=make('div');inner.append(make('h2',title),make('div',type,'type'));const close=make('button','Close');close.onclick=closePanel;heading.append(inner,close);panel.append(heading);}
 function row(n,caption){const b=make('button',label(n),'row'),detail=[n.subtitle,caption].filter(Boolean).join(' · ');if(detail)b.append(make('small',detail));b.onclick=()=>{select(n);fit(n);};return b;}
 function connectionRows(title,edges,direction){
  if(!edges.length)return;panel.append(make('h3',title+' · '+edges.length));
@@ -312,11 +337,11 @@ function connectionRows(title,edges,direction){
  }
 }
 function select(n){
- selected=n;breadcrumb(n);panelHeader(label(n),n.kind==='method'?`${n.language} · ${n.ownerName}`:n.kind==='file'?`${n.language} file`:'Folder');
- panel.dataset.node=n.id;if(n.subtitle)panel.append(make('p',n.subtitle,'subtitle'));panel.append(make('p',n.path||data.title,'path'));
+ selected=n;breadcrumb(n);panelHeader(label(n),n.kind==='method'?[n.language,n.ownerName].filter(Boolean).join(' · '):n.kind==='file'?`${n.language} file`:'Folder');
+ panel.dataset.node=n.id;panel.dataset.kind=n.kind;if(n.subtitle)panel.append(make('p',n.subtitle,'subtitle'));panel.append(make('p',n.path||data.title,'path'));
  const zoomButton=make('button','Zoom to '+(n.kind==='method'?'method':n.kind));zoomButton.onclick=()=>fit(n);panel.append(zoomButton);
  if(n.summary)panel.append(make('p',n.summary));
- if(n.signature)panel.append(make('pre',n.signature));
+ if(n.signature){const signature=make('details');signature.append(make('summary','Signature'),make('pre',n.signature));panel.append(signature);}
  if(n.kind!=='folder'){const url=sourceLink(n);if(url){const a=make('a',`Open source · ${data.repository.revision.slice(0,7)}${n.line?' · L'+n.line:''}`);a.href=url;a.target='_blank';a.rel='noopener noreferrer';const p=make('p');p.append(a);panel.append(p);}}
  if(n.kind==='method'){
   const fitLinks=make('button','Fit connections');fitLinks.onclick=()=>{const related=[...neighborhood().ids].map(id=>nodes.get(id));const x=Math.min(...related.map(n=>n.x)),y=Math.min(...related.map(n=>n.y));if(matchMedia('(max-width:760px)').matches)closePanel();fit({x,y,w:Math.max(...related.map(n=>n.x+n.w))-x,h:Math.max(...related.map(n=>n.y+n.h))-y});};panel.append(fitLinks);

@@ -1,7 +1,7 @@
 {
   "ok": true,
   "artifact": "python-slugify.html",
-  "sha256": "f58939d4b7f9db87d8795cb9d3401ee8562614fdf67413ac8c315ba6056aa201",
+  "sha256": "c562d54c1cbfab471a9a62e38452d852e67948939c80e6d455fc76c2f96ef003",
   "repository": {
     "url": "https://github.com/un33k/python-slugify",
     "revision": "4b6b5b42f050f1ce96899e015247d5e3901cc433"

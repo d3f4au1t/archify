@@ -33,6 +33,7 @@ python3 <installed-path>/scripts/test-repository-index.py
 node <installed-path>/scripts/test-method-layout.mjs <explorer.index.json>
 node <installed-path>/scripts/test-edge-direction.mjs
 node <installed-path>/scripts/test-explorer-visibility.mjs
+node <installed-path>/scripts/test-explorer-labels.mjs
 node <installed-path>/scripts/check-repository-explorer.mjs <explorer.html> <evidence-directory>
 ```
 
@@ -48,6 +49,7 @@ For a deliberately small set of curated native diagrams, the older [curated expl
 - Wheel deltas change scale continuously around the pointer; pinch also preserves its center. Dragging pans. A gesture's speed must not accidentally jump entire abstraction levels.
 - Folder, file and method boxes retain their positions. Detail fades in when its projected size is readable; coarse labels fade out as their children become legible. Avoid a minimum text size that overlaps descendants in tiny header bands.
 - Treat spacing and hierarchy as renderer defaults, not per-project patches: give the canvas an outer margin, reserve a header band in each owner, use generous proportional folder gutters, and inset method groups from file borders. Keep canvas labels readable before revealing secondary metadata. On narrow screens, dock source details below the map; preserve full map width, independent scrolling, and room for map controls. Keep breadcrumbs readable and scroll the current location into view. Quiet unrelated cross-file connections when inspecting a file; retain every relationship and emphasize selected-method neighbors.
+- Carry the original Archify visual hierarchy into the continuous map: use a subtle dot canvas, faint folder outlines, lightly tinted file regions, and stronger method cards. Use amber, cyan, and green consistently for those ownership levels in both themes; reserve the strongest green for selection and its directed connections. Keep toolbar controls grouped and secondary source signatures expandable. Allow two lines for long method labels at readable scales, preserving every character of the real symbol name; full names remain available through search and source details.
 - Leave deliberate empty space between neighboring folders/files and between unrelated call groups. Keep related methods closer together, increase ownership-region gaps with their size, and preserve generous inner padding. Do not compress everything to fill the canvas; users can zoom and pan. Change the saved-layout version when geometry changes so older links refit their selected source node.
 - Paint box fills and borders first, connections second, and all folder/file/method labels and group headings last. Lines may cross colored cells and outlines, but must never paint over their text. Use a thin glyph outline matching the cell background to protect letters from bright highlighted lines; preserve the same fade and selection opacity in the label pass.
 - Draw exactly one arrowhead at each directed connection's destination. Separate incoming and outgoing attachment points so overlapping links do not appear double-headed; keep genuine reverse relationships as distinct directed lines.

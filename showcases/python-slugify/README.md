@@ -6,6 +6,15 @@ A compact example of Archify's continuous repository map: 45 tracked files, 172 
 
 ![Selected function and its connections](connections-desktop.jpg)
 
+Visual reference: the original Archify [Classic architecture example](https://github.com/tt-a1i/archify/blob/11b0d6031853bdae89eed57e7979aabbf0034097/archify/examples/web-app-rendered.html). The shared explorer now follows its faint enclosure outlines, restrained colored fills, subtle dot canvas, and grouped controls. Folder, file, and method colors identify ownership levels; selected connections receive stronger emphasis. Long method names wrap at readable scales, and signatures expand on demand.
+
+<details>
+<summary>Original Archify reference</summary>
+
+![Original Classic architecture styling](original-archify-reference.jpg)
+
+</details>
+
 Scroll to zoom from folders into files and methods. Click a method to highlight its callers and callees, or choose a guided path from **Runtime flows**.
 
 Source: [un33k/python-slugify](https://github.com/un33k/python-slugify/tree/4b6b5b42f050f1ce96899e015247d5e3901cc433), pinned to `4b6b5b42f050f1ce96899e015247d5e3901cc433`. Embedded source retains its [MIT license](SOURCE-LICENSE.txt).
